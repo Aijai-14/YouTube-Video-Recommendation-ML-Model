@@ -65,7 +65,7 @@ features = video_analytics[col_names]
 target_labels = video_analytics['Encoded_Labels']
 
 # Split dataset into training set and test set
-X_train, X_test, y_train, y_test = train_test_split(features, target_labels, test_size=0.2, random_state=21,
+X_train, X_test, y_train, y_test = train_test_split(features, target_labels, test_size=0.2, random_state=1,
                                                     shuffle=True)
 
 # Create Decision Tree object
