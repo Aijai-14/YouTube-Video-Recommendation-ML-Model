@@ -18,18 +18,18 @@ video_metadata = pd.concat([pd.read_csv(data) for data in csv_files])
 # create dataframe using relevant features
 video_metadata = video_metadata[col_names]
 
-# check for null values in any of the feature columns and fill them with empty string
+# this loop checks for null values in any of the feature columns and fill them with empty string
 for column in video_metadata.columns:
     video_metadata[column].fillna("", inplace=True)
 
 # create 3 text vectorizer objects that take turn the text data for each feature into numeric data
-# for the clustering algorithm to work.
+# for the clustering algorithm to work. We learned this from the first example video provided in Project Part 1.
 textVectorizerTitles = TfidfVectorizer(stop_words='english', ngram_range=(1, 3), strip_accents='unicode')
 textVectorizerTags = TfidfVectorizer(stop_words='english', ngram_range=(1, 3), strip_accents='unicode')
 textVectorizerDescriptions = TfidfVectorizer(stop_words='english', ngram_range=(1, 3), strip_accents='unicode')
 
 # combine all 3 text vectorizers into 1 column transformer so that the vectorizer can be applied on the entire
-# dataframe
+# dataframe. We added this code to make the vectorized text into 1 object, so we could add it to dataframe.
 column_transformer = ColumnTransformer(
     [('tf_title', textVectorizerTitles, 'title'),
      ('tf_tags', textVectorizerTags, 'tags'),
@@ -40,7 +40,9 @@ features_trans = column_transformer.fit_transform(video_metadata)
 
 
 # Loop through the KMeans cluster algo. and using the specified number of clusters from 2 to 10 and store the
-# sum of squared distances for each number of cluster and the silhouette scores for each cluster.
+# sum of squared distances for each number of cluster and the silhouette scores for each cluster. We build this function
+# off the function show in the first example video provided in Project Part 1, but added our dataset and code to plot/calculate
+# the SS and WCSS.
 
 def findOptimalCluster():
     maxClusters = 10
@@ -67,6 +69,8 @@ def findOptimalCluster():
     plt.title('Silhouette Score vs Clusters')
     plt.savefig('SS vs Clusters Graph')
 
+# The below code was built off of the first example video provided in Project Part 1 but with our own dataset and features and
+# model parameters.
 # Based on the graphs created we fit the data on the KMeans model with the ideal number of clusters
 optimalCluster = 10
 trueModel = KMeans(n_clusters=optimalCluster, init='k-means++', max_iter=600, n_init=10)

@@ -26,7 +26,7 @@ videoData = videoData[col_names]
 # function to generate the runtime and publish hour feature. The runtime is obtained by using pyTube library to
 # web scrape the duration using the video id and add it to an array. The publish hour is extracted by using publish time
 # and parsing the hour component out then formatting in 24 hour format. Finally, both features are added to the videoData
-# dataframe.
+# dataframe. We created this function from scratch.
 def createFeatures():
     videoRuntimes = []
     for num in range(videoData.shape[0]):
@@ -49,7 +49,7 @@ def createFeatures():
     videoData['runtimes'] = videoData['runtimes'].fillna(702).replace([None, 'null', 'NaN'], 702)
 
 
-# this function is similar to above but only computes the publish hour feature.
+# this function is similar to above but only computes the publish hour feature. We created this function from scratch.
 def createTimeFeature():
     publishHour = []
     for num in range(videoData.shape[0]):
@@ -67,6 +67,8 @@ createFeatures()
 features = videoData[['runtimes', 'publish_hour', 'likes', 'dislikes', 'comment_count']]
 target_labels = videoData['views']
 
+# The below code was built off of existing linear regression template from sklearn documentation but using our own dataset, features
+# and model parameters.
 # Split the data into training (80%) and testing (20%) sets
 X_train, X_test, y_train, y_test = train_test_split(features, target_labels, test_size=0.2, random_state=1, shuffle=True)
 
@@ -76,23 +78,22 @@ scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train)
 X_test_scaled = scaler.transform(X_test)
 
+# This code was researched and written by us to determine the best value of L1 regularization parameter alpha.
 # Set up a range of alpha values for Grid Search
 alphas = np.logspace(-4, 2, 10)
-
 # Set up the parameter grid for GridSearchCV
 param_grid = {'alpha': alphas}
-
 # Create a Lasso model
 lasso = Lasso()
-
 # Perform GridSearchCV
 grid_search = GridSearchCV(lasso, param_grid, scoring='neg_mean_squared_error', cv=5)
 grid_search.fit(X_train_scaled, y_train)
-
 # Get the best alpha from the grid search
 best_alpha = grid_search.best_params_['alpha']
 print(f"best_alpha = {best_alpha}")
 
+# The below code was built off of existing linear regression template from sklearn documentation but using our own dataset, features
+# and model parameters.
 # create a LR model with lasso regularization parameter best alpha
 lasso_model = Lasso(alpha=best_alpha)
 
@@ -110,6 +111,8 @@ rmse = np.sqrt(mse)
 Mae = median_absolute_error(y_test, predictions)
 explained_var = explained_variance_score(y_test, predictions)
 
+# The code below we wrote to print the metrics, coefficients, a pairplot and heat-map for our regression model. The sns
+# library documentation was consulted for the visualizations.
 # Print the metrics
 print(f"Mean Squared Error (MSE): {mse}")
 print(f"R-squared: {r2}")
@@ -138,7 +141,7 @@ sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm')
 plt.savefig("Heatmap2")
 plt.show()
 
-# without runtime:
+# Without Runtime:
 # Mean Squared Error (MSE): 8551762130950.944
 # R-squared: 0.7862334648800452
 # Mean Absolute Error (MAE): 931269.4602357434
@@ -148,7 +151,9 @@ plt.show()
 # Coefficients: [ -121976.63875916  5890012.32634811  1576244.63085988 -2300928.08870579]
 # Non-zero features: ['publish_hour', 'likes', 'dislikes', 'comment_count']
 
-# with runtime:
+# ---------------------------------------------------------------------------
+
+# With Runtime:
 # best_alpha = 100.0
 # Mean Squared Error (MSE): 8551761344160.955
 # R-squared: 0.7862334845472632

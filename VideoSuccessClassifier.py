@@ -8,7 +8,7 @@ from sklearn import metrics
 from sklearn import tree
 
 
-# function used to create labels for our dataset
+# function we created to manually label our  dataset
 def createLabels(training_data):
     if (
             training_data['views'] >= 1000000 and
@@ -35,7 +35,7 @@ def createLabels(training_data):
         return "Unpopular"
 
 
-# custom mapping for labels for dataset
+# custom mapping for labels for dataset that we created
 labelMap = {
     "Viral": 3,
     "Popular": 2,
@@ -54,7 +54,7 @@ video_analytics = pd.concat([pd.read_csv(data) for data in csv_files])
 video_analytics = video_analytics[col_names]
 
 # Manually label data using createLabels function and encode the string labels into numeric labels using a custom label
-# mapping
+# mapping. We used online resources to learn how to use the labelEncoder.
 video_analytics['labels'] = video_analytics.apply(createLabels, axis=1)
 labelEncoder = LabelEncoder()
 labelEncoder.classes_ = video_analytics['labels'].unique()
@@ -64,6 +64,7 @@ video_analytics['Encoded_Labels'] = video_analytics['labels'].map(labelMap)
 features = video_analytics[col_names]
 target_labels = video_analytics['Encoded_Labels']
 
+# The below code to train the tree was learned from sklearn documentation.
 # Split dataset into training set and test set
 X_train, X_test, y_train, y_test = train_test_split(features, target_labels, test_size=0.2, random_state=1,
                                                     shuffle=True)
@@ -84,8 +85,8 @@ confusion_matrix = multilabel_confusion_matrix(y_test, predictions, labels=[0, 1
 accuracy = metrics.accuracy_score(y_test, predictions)
 balanced_accuracy = metrics.balanced_accuracy_score(y_test, predictions)
 precision, recall, F_Score, support = precision_recall_fscore_support(y_test, predictions, labels=[0, 1, 2, 3])
-# AUROC = roc_auc_score(y_test, predictions, multi_class='ovr')
 
+# below code prints metrics and visualizes decision tree.
 # display the performance metrics
 print("Accuracy: ", accuracy)
 print("Balanced Accuracy: ", balanced_accuracy)
